@@ -1,0 +1,43 @@
+# Google Sheets API credentials
+credentials.json
+token.json
+
+# Robot Framework output files
+output.xml
+log.html
+report.html
+selenium-screenshot-*.png
+
+# Test results directories
+results_*/
+results_batch_*/
+results_google_*/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+venv/
+env/
+tester/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test summary files
+test_summary_*.json
+
+
+
+
