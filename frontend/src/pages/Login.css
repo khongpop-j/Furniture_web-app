@@ -1,0 +1,198 @@
+/* === PAGE & LAYOUT === */
+.login-page{
+  display:flex;
+  justify-content:center;
+  align-items:center;              /* กึ่งกลางแนวตั้ง */
+  background:#fff;
+  padding:40px 0 24px;
+  min-height:60vh;                /* สูงเต็มจอ */
+}
+
+.login-container{
+  width:100%;
+  max-width:980px;                 /* เผื่อพื้นที่โลโก้ */
+  display:grid;
+  grid-template-columns:minmax(420px,1fr) 420px; /* ซ้ายยืดหยุ่น / ขวา 420px */
+  gap:32px;
+  align-items:start;
+  padding:0 16px;
+}
+
+/* ซ้าย: โลโก้ใหญ่กึ่งกลาง */
+.login-left{ display:grid; place-items:center; }
+.photo-left{
+  width:clamp(260px,24vw,420px);   /* ขนาดตามภาพตัวอย่าง */
+  height:auto;
+  max-width:100%;
+  object-fit:contain;
+  display:block;
+}
+
+/* ขวา: ฟอร์ม */
+.login-right h1{
+  font-size:clamp(28px,3.2vw,44px); /* หัวข้อใหญ่แบบในภาพ */
+  font-weight:800;
+  margin-bottom:18px;
+}
+
+.login-form{ max-width:420px; }
+
+.login-form label{
+  display:block;
+  font-weight:800;                  /* หนักและใหญ่ตามภาพ */
+  font-size:20px;
+  margin:12px 0 6px;
+}
+
+.login-form input{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  outline:none;
+}
+
+/* ลิงก์ลืมรหัสผ่าน ชิดขวา */
+.login-utils{
+  display:flex;
+  justify-content:flex-end;
+  margin:8px 0 12px;
+}
+.forgot-link{
+  color:#000;
+  font-size:14px;
+  text-decoration:underline;        /* ให้หน้าตาเหมือนในภาพ */
+}
+
+.error{ color:#b40000; margin-bottom:10px; font-size:14px; }
+
+/* ปุ่มแดง */
+.btn-login{
+  width:100%;
+  padding:12px 16px;
+  background:#b40000;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  font-weight:700;
+  cursor:pointer;
+  font-size:16px;
+  transition:background-color .3s;
+}
+.btn-login:hover{ background:#a00000; }
+.btn-login:disabled{ background:#ccc; cursor:not-allowed; }
+
+/* บรรทัดสมัครสมาชิก */
+.signup-note{ margin-top:12px; font-size:14px; text-align:center; }
+.signup-note a{ color:#b40000; }
+
+/* มือถือ */
+@media (max-width:900px){
+  .login-container{ grid-template-columns:1fr; gap:16px; max-width:520px; }
+  .login-left{ display:none; }       /* ซ่อนไว้ให้ฟอร์มเด่น */
+  .login-right h1{ text-align:center; }
+  .login-page{ padding:20px 0; }
+}
+
+/* จอกว้างมาก ขยายโลโก้ได้อีกนิด */
+@media (min-width:1400px){
+  .photo-left{ width:clamp(280px,22vw,460px); }
+}
+
+/* เส้นขอบอินพุตตอนมีข้อผิดพลาด */
+.login-form input.is-invalid{
+  border-color:#b63a2b;           /* โทนแดงคล้ายภาพตัวอย่าง */
+  box-shadow:0 0 0 3px rgba(182,58,43,.12);
+}
+
+/* ข้อความเตือนใต้ช่องรหัสผ่าน */
+.field-error{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  margin:6px 0 8px;
+  color:#7a271a;
+  font-size:14px;
+  line-height:1.35;
+}
+
+/* ไอคอนเตือนนำหน้า (ใช้ SVG ฝังด้วย data URI) */
+.field-error::before{
+  content:"";
+  width:18px;
+  height:18px;
+  flex:0 0 18px;
+  margin-top:2px;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  /* วงกลมแดง + ! สีขาว */
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23b63a2b'/%3E%3Crect x='11' y='6' width='2' height='9' fill='white'/%3E%3Crect x='11' y='16.5' width='2' height='2' fill='white'/%3E%3C/svg%3E");
+}
+
+/* ให้แถว utils มีซ้าย-ขวาในบรรทัดเดียว */
+.login-utils{
+  display:flex;
+  justify-content:space-between;  /* ซ้าย-ขวา */
+  align-items:center;
+  margin:8px 0 12px;
+}
+
+/* สไตล์เช็กบ็อกซ์แสดงรหัสผ่าน */
+.showpass{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:8px;
+  color:#111;
+  user-select:none;
+}
+.showpass input{
+  width:10px;
+  height:10px;
+}
+
+/* เดิม */
+.forgot-link{
+  color:#000;
+  font-size:14px;
+  text-decoration:underline;
+}
+
+/* ขนาด checkbox + จัดแนวให้ตรงกลางตัวอักษร */
+.showpass input{
+  width: 15px;                       /* << ปรับขนาด checkbox */
+  height: 15px;
+  vertical-align: middle;
+  /* ถ้ารู้สึกต่ำ/สูงไปเล็กน้อย ใช้อันใดอันหนึ่งด้านล่าง */
+  /* position: relative; top: 1px; */
+}
+
+/* ลิงก์ลืมรหัสผ่าน (คงเดิม ปรับได้ถ้าต้องการ) */
+.forgot-link{
+  color: #000;
+  font-size: 16px;
+  text-decoration: underline;
+}
+
+/* เดิม: .login-form label {...} */
+.login-form > label{
+  display:block;
+  font-weight:800;
+  font-size:20px;
+  margin:12px 0 6px;
+}
+
+/* วางส่วนนี้ไว้ด้านล่างสุดของ Login.css เพื่อให้ทับกฎด้านบนได้แน่นอน */
+.login-form .showpass{
+  display:inline-flex;
+  align-items:center;
+  column-gap:6px;     /* ระยะห่างระหว่าง checkbox กับข้อความ */
+  font-size:16px;      /* << ขนาดฟอนต์ */
+  font-weight:200;     /* << ความหนา */
+  line-height:1.2;
+}
+
+.login-form .showpass input{
+  width:18px; height:18px;
+}

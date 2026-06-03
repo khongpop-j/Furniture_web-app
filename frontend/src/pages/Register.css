@@ -1,0 +1,267 @@
+/* === PAGE & LAYOUT === */
+.register-page {
+  display: flex;
+  justify-content: center;
+  background: #fff;
+  padding: 40px 0 24px;
+}
+
+.register-container {
+  width: 100%;
+  max-width: 980px;                    /* กว้างรวมรูป + ฟอร์ม */
+  display: grid;
+  grid-template-columns: 1fr 460px;    /* ซ้ายรูป / ขวาฟอร์ม */
+  gap: 24px;
+  align-items: start;
+  padding: 0 16px;
+}
+
+/* LEFT (image) */
+.register-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 520px;                   /* ให้มีสัดส่วนใกล้เคียงภาพตัวอย่าง */
+}
+
+.logo-login {
+  width: 100%;
+  max-width: 300px;                    /* ขนาดรูปสูงสุด */
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* RIGHT (form) */
+.register-right h1 {
+  text-align: left;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+.register-form label {
+  display: block;
+  font-weight: 700;
+  margin: 12px 0 6px;
+}
+
+.register-form input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.register-form .name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* FEEDBACK */
+.error {
+  color: #b40000;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+/* BUTTON */
+.btn-register {
+  width: 100%;
+  padding: 12px 16px;
+  background: #b40000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.btn-register:hover { background: #a00000; }
+.btn-register:disabled { background: #ccc; cursor: not-allowed; }
+
+/* TERMS & NOTE */
+.terms {
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.terms label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.terms input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.login-note {
+  margin-top: 12px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.login-note a {
+  color: #b40000;
+  text-decoration: none;
+}
+.login-note a:hover { text-decoration: underline; }
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+  .register-container {
+    grid-template-columns: 1fr;       /* ซ้อนเป็นคอลัมน์เดียวบนมือถือ */
+  }
+  .register-left {
+    min-height: auto;
+    padding-bottom: 8px;
+  }
+  .register-right h1 {
+    text-align: center;
+  }
+}
+
+/* อินพุตตอนมีข้อผิดพลาด */
+.register-form input.is-invalid{
+  border-color:#b63a2b;
+  box-shadow:0 0 0 3px rgba(182,58,43,.12);
+}
+
+/* ข้อความเตือนใต้ช่อง */
+.field-error{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  margin:6px 0 8px;
+  color:#7a271a;
+  font-size:14px;
+  line-height:1.35;
+}
+
+/* ไอคอนเตือนนำหน้า */
+.field-error::before{
+  content:"";
+  width:18px; height:18px; flex:0 0 18px; margin-top:2px;
+  background-repeat:no-repeat; background-position:center; background-size:contain;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23b63a2b'/%3E%3Crect x='11' y='6' width='2' height='9' fill='white'/%3E%3Crect x='11' y='16.5' width='2' height='2' fill='white'/%3E%3C/svg%3E");
+}
+
+/* TERMS & NOTE */
+.terms {
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+/* ให้เช็กบ็อกซ์กับข้อความอยู่บรรทัดเดียวกัน */
+.terms label{
+  display: inline-flex;          /* เดิมเป็น flex → ใช้ inline-flex ให้ลอยในบรรทัด */
+  align-items: center;           /* จัดกึ่งกลางแนวตั้ง */
+  gap: 8px;
+  font-weight: normal;
+  cursor: pointer;
+  flex-wrap: nowrap;             /* ไม่ให้ตัดบรรทัดก่อน span */
+}
+
+/* ขนาด/การจัดวางเช็กบ็อกซ์ */
+.terms input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  vertical-align: middle;        /* เผื่อเบราว์เซอร์บางตัว */
+}
+
+/* ให้ข้อความเป็นอินไลน์ (ตัดบรรทัดตามความกว้าง container ได้ปกติ) */
+.terms label span{
+  display: inline;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+/* แสดงรหัสผ่าน: ให้อยู่บรรทัดเดียวกับข้อความเหมือน terms */
+.show-password{
+  margin: 6px 0 4px;
+  font-size: 14px;
+  font-weight:200; 
+}
+.show-password label{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.show-password input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  vertical-align: middle;
+}
+.show-password label span{
+  display: inline;
+  line-height: 1.4;
+}
+
+/* (ของ terms คงเดิมตามที่ตั้งให้บรรทัดเดียว) */
+
+/* — tighten spacing between the two checkbox rows — */
+.show-password,
+.terms{
+  margin: 4px 0;              /* เดิม 6–10px → ลดให้ชิดขึ้น */
+  font-size: 14px;
+}
+
+.show-password label,
+.terms label{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;                   /* ลดช่องว่างระหว่างกล่องกับข้อความ */
+  line-height: 1.2;           /* ลดความสูงบรรทัด */
+}
+
+.show-password input[type="checkbox"],
+.terms input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+  margin: 0;                  /* กัน margin เริ่มต้นของบางเบราว์เซอร์ */
+  vertical-align: middle;
+}
+
+/* ถ้ามี field-error โผล่ใต้สองบรรทัดนี้ ให้ลดช่องไฟด้วย */
+.field-error{ margin: 4px 0 6px; }
+
+
+/* === Override สำหรับ "แสดงรหัสผ่าน" บนหน้า Register === */
+/* ทำให้ข้อความหลังกล่องติ๊กกำหนดขนาด/น้ำหนักได้เอง */
+.register-form .show-password label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;              /* ระยะห่างกล่องติ๊กกับข้อความ */
+}
+
+/* ข้อความหลัง checkbox */
+.register-form .show-password label span {
+  font-size: 14px;       /* << ขนาดฟอนต์ที่ต้องการ */
+  font-weight: 200;      /* << ความหนาที่ต้องการ */
+  line-height: 1.25;
+}
+
+/* ขนาดกล่องติ๊ก */
+.register-form .show-password input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  vertical-align: middle;
+}
+
+/* ระยะห่างแนวตั้งของแถว "แสดงรหัสผ่าน" (ปรับได้ตามชอบ) */
+.register-form .show-password {
+  margin: 6px 0 4px;
+}
