@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Checkout.css';
+import API_URL from '../config';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ const Checkout = () => {
         setLoading(false);
         return;
       }
-      const response = await axios.get('http://localhost:5050/api/cart', {
+      const response = await axios.get(`${API_URL}/api/cart`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data && response.data.length > 0) {
@@ -78,7 +79,7 @@ const Checkout = () => {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await axios.get('http://localhost:5050/api/user', {
+        const response = await axios.get(`${API_URL}/api/user`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUser(response.data);
@@ -148,9 +149,6 @@ const Checkout = () => {
 
   const handleDeliveryMethodChange = (method) => setDeliveryMethod(method);
   const handleInvoiceChange = (need) => setNeedInvoice(need);
-
-  const handleInvoiceDataChange = (field, value) =>
-    setInvoiceData(prev => ({ ...prev, [field]: value }));
 
   const handleDeliveryAddressChange = (field, value) =>
     setDeliveryAddress(prev => ({ ...prev, [field]: value }));

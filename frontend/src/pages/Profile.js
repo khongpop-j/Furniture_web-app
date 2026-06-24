@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Profile.css';
+import API_URL from '../config';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ const Profile = () => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5050/api/auth/me', {
+        const response = await axios.get(`${API_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 3000
         });
@@ -221,7 +222,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await axios.put('http://localhost:5050/api/user', {
+        const response = await axios.put(`${API_URL}/api/user`, {
           name: `${formData.firstName} ${formData.lastName}`.trim(),
           email: formData.email,
           phone: formData.phone,
@@ -278,7 +279,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await axios.put('http://localhost:5050/api/user', {
+        const response = await axios.put(`${API_URL}/api/user`, {
           address: addressData.address,
           district: addressData.district,
           amphoe: addressData.amphoe,
@@ -321,7 +322,7 @@ const Profile = () => {
   const fetchFavorites = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5050/api/favorites', {
+      const response = await axios.get(`${API_URL}/api/favorites`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 3000
       });
@@ -335,7 +336,7 @@ const Profile = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5050/api/orders', {
+      const response = await axios.get(`${API_URL}/api/orders`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 3000
       });
@@ -360,7 +361,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await axios.get('http://localhost:5050/api/auth/me', {
+        const response = await axios.get(`${API_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 3000
         });

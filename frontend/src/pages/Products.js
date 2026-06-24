@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import './Products.css';
+import API_URL from '../config';
 
 const Products = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +27,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:5050/api/products');
+        const response = await axios.get(`${API_URL}/api/products`);
         setProducts(response.data);
         setFilteredProducts(response.data);
       } catch (error) {
@@ -89,6 +90,11 @@ const Products = () => {
 
 
 
+  const handleCategoryClick = (category) => {
+    // คลิกซ้ำที่หมวดที่เลือกอยู่ = ยกเลิกการกรอง (แสดงทั้งหมด)
+    setSelectedCategory(prev => prev === category ? '' : category);
+  };
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -122,31 +128,26 @@ const formatPrice = (n) =>
         <div className="filter-sort-container">
           <div className="filter-section">
             <div className="filter-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"></polygon>
               </svg>
               <span>ตัวกรองสินค้า</span>
             </div>
-            
+
             <div className="category-filters">
-              <label className={`category-option ${selectedCategory === '' ? 'selected' : ''}`}>
-                <input
-                  type="radio"
-                  name="category"
-                  value=""
-                  checked={selectedCategory === ''}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                />
-                <span>ทั้งหมด</span>
-              </label>
               {categories.map((category) => (
-                <label key={category} className={`category-option ${selectedCategory === category ? 'selected' : ''}`}>
+                <label
+                  key={category}
+                  className={`category-option ${selectedCategory === category ? 'selected' : ''}`}
+                  onClick={() => handleCategoryClick(category)}
+                >
                   <input
                     type="radio"
                     name="category"
                     value={category}
                     checked={selectedCategory === category}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    onChange={() => {}}
+                    readOnly
                   />
                   <span>{category}</span>
                 </label>
@@ -155,8 +156,8 @@ const formatPrice = (n) =>
           </div>
 
           <div className="sort-section">
-            <select 
-              value={sortBy} 
+            <select
+              value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="sort-dropdown"
             >

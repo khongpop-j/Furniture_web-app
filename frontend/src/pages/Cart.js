@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Cart.css';
+import API_URL from '../config';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Cart = () => {
           return;
         }
 
-        const response = await axios.get('http://localhost:5050/api/cart', {
+        const response = await axios.get(`${API_URL}/api/cart`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setCartItems(response.data);
@@ -45,7 +46,7 @@ const Cart = () => {
       if (!cartItem) return;
 
       if (newQuantity < 1) {
-        await axios.delete(`http://localhost:5050/api/cart/${cartItem.productId}`, {
+        await axios.delete(`${API_URL}/api/cart/${cartItem.productId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
@@ -55,12 +56,12 @@ const Cart = () => {
           return;
         }
 
-        await axios.put(`http://localhost:5050/api/cart/${cartItem.productId}`, 
+        await axios.put(`${API_URL}/api/cart/${cartItem.productId}`, 
           { quantity: newQuantity },
           { headers: { Authorization: `Bearer ${token}` } }
         );
       }
-      const response = await axios.get('http://localhost:5050/api/cart', {
+      const response = await axios.get(`${API_URL}/api/cart`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCartItems(response.data);
@@ -85,10 +86,10 @@ const Cart = () => {
       const cartItem = cartItems.find(item => item.id === cartItemId);
       if (!cartItem) return;
 
-      await axios.delete(`http://localhost:5050/api/cart/${cartItem.productId}`, {
+      await axios.delete(`${API_URL}/api/cart/${cartItem.productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const response = await axios.get('http://localhost:5050/api/cart', {
+      const response = await axios.get(`${API_URL}/api/cart`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCartItems(response.data);
@@ -118,7 +119,7 @@ const Cart = () => {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await axios.get('http://localhost:5050/api/auth/me', {
+        const response = await axios.get(`${API_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         userData = response.data;
@@ -379,7 +380,7 @@ const Cart = () => {
     if (pollTimer) clearInterval(pollTimer);
     const timer = setInterval(async () => {
       try {
-        const { data } = await axios.get(`http://localhost:5050/api/payments/${paymentIntentId}/status`);
+        const { data } = await axios.get(`${API_URL}/api/payments/${paymentIntentId}/status`);
         setPaymentStatus(data.status);
         if (data.status === 'succeeded') {
           // เมื่อชำระเงินสำเร็จ ให้บันทึกคำสั่งซื้อ
@@ -420,7 +421,7 @@ const Cart = () => {
 
       console.log('🛒 Creating order after payment:', orderData);
 
-      const response = await axios.post('http://localhost:5050/api/orders', orderData, {
+      const response = await axios.post(`${API_URL}/api/orders`, orderData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -428,9 +429,13 @@ const Cart = () => {
         console.log('✅ Order created successfully:', response.data.id);
         alert('บันทึกคำสั่งซื้อสำเร็จ! หมายเลขคำสั่งซื้อ: ' + response.data.id);
         // ล้างตะกร้าหลังบันทึกคำสั่งซื้อ
-        await axios.delete('http://localhost:5050/api/cart/clear');
+        await axios.delete(`${API_URL}/api/cart/clear`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         // รีเฟรชข้อมูลตะกร้า
-        const cartResponse = await axios.get('http://localhost:5050/api/cart');
+        const cartResponse = await axios.get(`${API_URL}/api/cart`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setCartItems(cartResponse.data);
       }
     } catch (error) {

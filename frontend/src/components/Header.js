@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
+import API_URL from '../config';
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,7 +22,7 @@ const Header = () => {
       return;
     }
 
-    fetch('http://localhost:5050/api/cart', {
+    fetch(`${API_URL}/api/cart`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -70,7 +71,7 @@ const Header = () => {
     }
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(`http://localhost:5050/api/search?q=${encodeURIComponent(searchQuery)}`);
+        const res = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(searchQuery)}`);
         const data = await res.json();
         setSuggestions(Array.isArray(data) ? data : []);
         setShowSuggest(true);
@@ -115,7 +116,7 @@ const Header = () => {
       if (!token) return;
 
       try {
-        const response = await fetch('http://localhost:5050/api/auth/me', {
+        const response = await fetch(`${API_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.ok) {

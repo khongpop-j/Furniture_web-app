@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './CheckoutSuccess.css';
+import API_URL from '../config';
 
 const CheckoutSuccess = () => {
   const navigate = useNavigate();
@@ -15,12 +16,12 @@ const CheckoutSuccess = () => {
   const fetchSessionData = useCallback(async (sessionId) => {
     try {
       // ดึงข้อมูล session
-      const sessionResponse = await axios.get(`http://localhost:5050/api/checkout/session/${sessionId}`);
+      const sessionResponse = await axios.get(`${API_URL}/api/checkout/session/${sessionId}`);
       setSessionData(sessionResponse.data);
       
       // สร้างคำสั่งซื้อจาก session
       try {
-        const orderResponse = await axios.post(`http://localhost:5050/api/checkout/session/${sessionId}/create-order`);
+        const orderResponse = await axios.post(`${API_URL}/api/checkout/session/${sessionId}/create-order`);
         console.log('✅ Order created:', orderResponse.data);
       } catch (orderError) {
         console.log('⚠️ Order might already exist or error occurred:', orderError.response?.data?.message);
@@ -30,7 +31,7 @@ const CheckoutSuccess = () => {
       try {
         const token = localStorage.getItem('token');
         if (token) {
-          const ordersResponse = await axios.get('http://localhost:5050/api/orders', {
+          const ordersResponse = await axios.get(`${API_URL}/api/orders`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           

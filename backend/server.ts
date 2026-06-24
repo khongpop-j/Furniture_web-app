@@ -1,19 +1,12 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import mysql from 'mysql2/promise';
-import { dbConfig } from './config/database';
 import { PrismaClient } from '@prisma/client';
 import Stripe from 'stripe';
 import bodyParser from 'body-parser';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createTransport } from 'nodemailer';
-import dotenv from 'dotenv';
-
-
-// โหลด environment variables
-dotenv.config();
 
 const PORT = Number(process.env.PORT) || 5050;
 const app = express();
@@ -93,10 +86,9 @@ const sendPasswordResetEmail = async (toEmail: string, userName: string, resetUr
 
 // Middleware
 app.use(cors());
-// ต้องใช้ raw body สำหรับ webhook เท่านั้น ส่วนอื่นใช้ JSON
-app.use(express.json());
-// Stripe webhook ต้องใช้ raw body ที่ content-type: application/json
+// Stripe webhook ต้องใช้ raw body — ต้องลงทะเบียนก่อน express.json()
 app.use('/api/stripe/webhook', bodyParser.raw({ type: 'application/json' }));
+app.use(express.json());
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -253,10 +245,7 @@ app.post('/api/stripe/webhook', async (req: any, res) => {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         console.log('Payment succeeded:', paymentIntent.id);
-        
-        // Clear cart after successful payment
-        await prisma.cartItem.deleteMany();
-        console.log('✅ Cart cleared after successful payment');
+        // การล้างตะกร้าและสร้าง order จัดการใน checkout.session.completed แล้ว
         break;
       }
       case 'payment_intent.payment_failed': {
@@ -685,17 +674,11 @@ app.post('/api/contact', async (req, res) => {
     });
     
     // สร้าง transporter สำหรับส่งอีเมล
-    const transporter = createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER || 'furniture.kaokai@gmail.com',
-        pass: process.env.EMAIL_PASS || 'oftbawaohsscitgn'
-      }
-    });
-    
+    const transporter = createEmailTransporter();
+
     // เนื้อหาอีเมล
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'furniture.kaokai@gmail.com',
+      from: EMAIL_USER,
       to: 'info@kaokaioffice.com', // เมลบริษัท
       subject: `ข้อความติดต่อจากลูกค้า: ${subject || 'ไม่ระบุหัวข้อ'}`,
       html: `
@@ -732,13 +715,14 @@ app.post('/api/contact', async (req, res) => {
       `
     };
     
-    // ส่งอีเมล
-    try {
-      await transporter.sendMail(mailOptions);
-      console.log('✅ อีเมลส่งสำเร็จไปยัง:', 'info@kaokaioffice.com');
-    } catch (emailError) {
-      console.error('❌ เกิดข้อผิดพลาดในการส่งอีเมล:', emailError);
-      // ยังคงส่ง response กลับไปแม้อีเมลส่งไม่สำเร็จ
+    // ส่งอีเมล (ถ้าตั้งค่า email ไว้)
+    if (transporter) {
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log('✅ อีเมลส่งสำเร็จไปยัง:', 'info@kaokaioffice.com');
+      } catch (emailError) {
+        console.error('❌ เกิดข้อผิดพลาดในการส่งอีเมล:', emailError);
+      }
     }
     
     res.json({ 
@@ -967,7 +951,8 @@ app.get('/api/cart', authMiddleware, async (req: any, res) => {
             name: true,
             model: true,
             price: true,
-            image: true
+            image: true,
+            stock: true
           }
         }
       }
@@ -982,7 +967,8 @@ app.get('/api/cart', authMiddleware, async (req: any, res) => {
         name: item.product.name,
         model: item.product.model,
         price: parseFloat(item.product.price.toString()),
-        image: item.product.image
+        image: item.product.image,
+        stock: item.product.stock
       },
       quantity: item.quantity
     }));
@@ -1281,88 +1267,6 @@ app.put('/api/user', authMiddleware, async (req: any, res) => {
   }
 });
 
-// Order Routes
-app.post('/api/orders', authMiddleware, async (req: any, res) => {
-  try {
-    const { items, shippingAddress } = req.body;
-    const userId = req.user.id;
-
-    console.log('🛒 Creating order for user:', userId);
-    console.log('📦 Order items:', items);
-
-    if (!items || items.length === 0) {
-      return res.status(400).json({ message: 'ไม่มีสินค้าในตะกร้า' });
-    }
-
-    const total = items.reduce((sum: number, item: any) => 
-      sum + (parseFloat(item.price) * item.quantity), 0
-    );
-
-    // ตรวจสอบ stock และลด stock สำหรับแต่ละสินค้า
-    for (const item of items) {
-      console.log(`🔍 กำลังตรวจสอบสินค้า: ${item.name} (ID: ${item.id})`);
-      
-      const product = await prisma.product.findUnique({
-        where: { id: item.id }
-      });
-
-      if (!product) {
-        console.log(`❌ ไม่พบสินค้า ID: ${item.id}`);
-        return res.status(404).json({ message: `ไม่พบสินค้า ID: ${item.id}` });
-      }
-
-      console.log(`📦 สินค้า: ${product.name}, Stock ปัจจุบัน: ${product.stock}, ต้องการ: ${item.quantity}`);
-
-      if (product.stock < item.quantity) {
-        console.log(`❌ Stock ไม่เพียงพอ: ${product.stock} < ${item.quantity}`);
-        return res.status(400).json({ 
-          message: `สินค้า "${item.name}" เหลือเพียง ${product.stock} ชิ้น` 
-        });
-      }
-
-      // ลด stock
-      const newStock = product.stock - item.quantity;
-      console.log(`📦 ลด stock: ${item.name} จาก ${product.stock} เป็น ${newStock}`);
-      
-      const updateResult = await prisma.product.update({
-        where: { id: item.id },
-        data: { stock: newStock }
-      });
-      
-      console.log(`✅ Stock อัปเดตสำเร็จ: ${updateResult.name} = ${updateResult.stock}`);
-    }
-
-    // Create order with order items for the logged-in user
-    const order = await prisma.order.create({
-      data: {
-        userId: userId,
-        total: total,
-        shippingAddress: shippingAddress,
-        orderItems: {
-          create: items.map((item: any) => ({
-            productId: item.id,
-            name: item.name,
-            price: parseFloat(item.price),
-            quantity: item.quantity
-          }))
-        }
-      },
-      include: {
-        orderItems: true
-      }
-    });
-
-    // Clear cart after successful order creation
-    await prisma.cartItem.deleteMany();
-    console.log('✅ Cart cleared after order creation');
-
-    console.log('✅ Order created successfully:', order.id);
-    res.json(order);
-  } catch (error) {
-    console.error('Error creating order:', error);
-    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ' });
-  }
-});
 
 // Admin middleware - ตรวจสอบสิทธิ์ admin
 const adminMiddleware = async (req: any, res: any, next: any) => {

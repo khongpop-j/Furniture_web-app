@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './Contact.css';
+import API_URL from '../config';
 
 export default function Contact() {
   const phones = ["096-389-1916", "098-129-9913", "02-123-4567", "02-987-6543"];
@@ -13,7 +14,7 @@ export default function Contact() {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5050/api/contact', form);
+      const res = await axios.post(`${API_URL}/api/contact`, form);
       if (res.data?.success) {
         alert('ส่งข้อความเรียบร้อยแล้ว');
         setForm({ name: '', email: '', phone: '', subject: '', message: '' });

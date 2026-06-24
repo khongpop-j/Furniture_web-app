@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import './OrderDetail.css';
+import API_URL from '../config';
 
 const OrderDetail = () => {
   const { orderId } = useParams();
@@ -32,10 +33,10 @@ const OrderDetail = () => {
       if (!token) { navigate('/login'); return; }
 
       const [orderRes, meRes] = await Promise.all([
-        axios.get(`http://localhost:5050/api/orders/${orderId}`, {
+        axios.get(`${API_URL}/api/orders/${orderId}`, {
           headers: { Authorization: `Bearer ${token}` }, timeout: 10000
         }),
-        axios.get(`http://localhost:5050/api/auth/me`, {
+        axios.get(`${API_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }, timeout: 10000
         })
       ]);
@@ -50,7 +51,8 @@ const OrderDetail = () => {
       else setError('ไม่สามารถโหลดข้อมูลคำสั่งซื้อได้');
     } finally { setLoading(false); }
   };
-  useEffect(() => { fetchOrderDetails(); /* eslint-disable-next-line */ }, [orderId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchOrderDetails(); }, [orderId]);
 
   // สถานะ
   const statusText = {
@@ -328,7 +330,6 @@ const OrderDetail = () => {
   const ccFee = Number(order.creditCharge || 0);
   const total = Number(order.total ?? (subtotal - discount + shippingFee));
   const eligible = total - platformFee - ccFee;
-  const timeline = buildTimeline(order);
   const currentStatus = statusText[order.status] || order.status;
 
   return (

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './AdminDashboard.css';
+import API_URL from '../config';
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -19,22 +20,10 @@ const AdminDashboard = () => {
   const [showOrderDetails, setShowOrderDetails] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  useEffect(() => {
-    // ตรวจสอบการ login และ role
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setError('กรุณาเข้าสู่ระบบก่อน');
-      setLoading(false);
-      return;
-    }
-    
-    checkUserRole();
-  }, []);
-
-  const checkUserRole = async () => {
+  const checkUserRole = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5050/api/auth/me', {
+      const response = await axios.get(`${API_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -52,13 +41,23 @@ const AdminDashboard = () => {
       setError('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์');
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('กรุณาเข้าสู่ระบบก่อน');
+      setLoading(false);
+      return;
+    }
+    checkUserRole();
+  }, [checkUserRole]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5050/api/admin/users', {
+      const response = await axios.get(`${API_URL}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(response.data);
@@ -77,7 +76,7 @@ const AdminDashboard = () => {
   const updateUserRole = async (userId, newRole) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5050/api/admin/users/${userId}/role`, 
+      await axios.put(`${API_URL}/api/admin/users/${userId}/role`, 
         { role: newRole },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -98,7 +97,7 @@ const AdminDashboard = () => {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5050/api/admin/products', {
+      const response = await axios.get(`${API_URL}/api/admin/products`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProducts(response.data);
@@ -112,18 +111,18 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       const url = editingProduct 
-        ? `http://localhost:5050/api/admin/products/${editingProduct.id}`
-        : 'http://localhost:5050/api/admin/products';
+        ? `${API_URL}/api/admin/products/${editingProduct.id}`
+        : `${API_URL}/api/admin/products`;
       
       const method = editingProduct ? 'PUT' : 'POST';
       
-      const response = await axios({
+      await axios({
         method,
         url,
         data: productData,
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       alert(editingProduct ? 'อัปเดตสินค้าสำเร็จ' : 'เพิ่มสินค้าสำเร็จ');
       setShowProductForm(false);
       setEditingProduct(null);
@@ -139,7 +138,7 @@ const AdminDashboard = () => {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5050/api/admin/products/${productId}`, {
+      await axios.delete(`${API_URL}/api/admin/products/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -154,7 +153,7 @@ const AdminDashboard = () => {
   const updateProductStock = async (productId, action, quantity) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5050/api/admin/products/${productId}/stock`, 
+      await axios.put(`${API_URL}/api/admin/products/${productId}/stock`, 
         { action, quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -171,7 +170,7 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5050/api/admin/orders', {
+      const response = await axios.get(`${API_URL}/api/admin/orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(response.data);
@@ -184,7 +183,7 @@ const AdminDashboard = () => {
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5050/api/admin/orders/${orderId}/status`, 
+      await axios.put(`${API_URL}/api/admin/orders/${orderId}/status`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -203,7 +202,7 @@ const AdminDashboard = () => {
   const viewOrderDetails = async (order) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5050/api/admin/orders/${order.id}`, {
+      const response = await axios.get(`${API_URL}/api/admin/orders/${order.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSelectedOrder(response.data);

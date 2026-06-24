@@ -59,7 +59,7 @@ model Product {
 
 model CartItem {
   id        Int      @id @default(autoincrement())
-  userId    Int      @default(1)
+  userId    Int
   productId Int
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
